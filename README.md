@@ -18,6 +18,8 @@ AI-powered logistics optimization system using ML and graph algorithms to minimi
 ## Quick Start
 
 ```bash
+git clone https://github.com/EmmanuelOchieng01/supply_chain_optimizer
+cd supply_chain_optimizer
 pip install -r requirements.txt
 python app.py
 ```
