@@ -13,9 +13,9 @@
     <header>
         <div>
             <h1>Supply<span>Chain</span> Optimizer</h1>
-            <div class="subtitle">AI-Powered Logistics · Clarke-Wright · 2-opt · Random Forest</div>
+            <div class="subtitle">AI-Powered Logistics · Clarke-Wright · 2-opt · Random Forest · Kenya</div>
         </div>
-        <div class="header-badge">Kenya Logistics v1.0</div>
+        <div class="header-badge">v1.0</div>
     </header>
 
     <div class="dashboard">
@@ -24,7 +24,7 @@
 
             <div class="section">
                 <h3>Depot Location</h3>
-                <input type="text" id="depot-name" placeholder="Depot Name" value="Main Depot — Nairobi">
+                <input type="text"   id="depot-name" value="Main Depot — Nairobi">
                 <div class="coord-group">
                     <input type="number" id="depot-lat" placeholder="Latitude"  value="-1.2921" step="0.0001">
                     <input type="number" id="depot-lng" placeholder="Longitude" value="36.8219" step="0.0001">
@@ -40,25 +40,25 @@
             <div class="section">
                 <h3>Fleet Configuration</h3>
                 <label>Number of Vehicles</label>
-                <input type="number" id="num-vehicles" value="3" min="1" max="10">
+                <input type="number" id="num-vehicles"    value="3"   min="1" max="10">
                 <label>Vehicle Capacity (kg)</label>
                 <input type="number" id="vehicle-capacity" value="500" step="50">
-                <label>Cost per km ($)</label>
-                <input type="number" id="cost-per-km" value="2.5" step="0.1">
+                <label>Cost per km (KES)</label>
+                <input type="number" id="cost-per-km"     value="325" step="10">
             </div>
 
             <div class="section">
                 <h3>Optimisation Strategy</h3>
                 <select id="strategy">
-                    <option value="cost_optimized">Cost Optimised</option>
-                    <option value="time_optimized">Time Optimised</option>
-                    <option value="balanced">Balanced</option>
-                    <option value="green">Green — Low Carbon</option>
+                    <option value="cost_optimized">Cost Optimised — Lowest total spend</option>
+                    <option value="time_optimized">Time Optimised — Fastest deliveries</option>
+                    <option value="balanced">Balanced — Cost and time equally weighted</option>
+                    <option value="green">Green — Lowest carbon emissions</option>
                 </select>
             </div>
 
-            <button class="btn-primary" onclick="optimizeRoutes()">Run Optimisation</button>
-            <button class="btn-secondary" onclick="generateSampleData()">Load Sample Data</button>
+            <button class="btn-primary"    onclick="optimizeRoutes()">Run Optimisation</button>
+            <button class="btn-secondary"  onclick="generateSampleData()">Load Sample Data (Nairobi)</button>
             <div id="loading" class="loading">Optimising routes...</div>
         </div>
 
@@ -68,38 +68,38 @@
             </div>
 
             <div id="results" style="display:none;">
-                <div class="section-label">Summary Metrics</div>
+                <div class="section-label">Summary</div>
                 <div class="metrics-grid">
                     <div class="metric-card green">
-                        <div class="metric-icon">$</div>
-                        <div class="metric-label">Total Cost</div>
+                        <div class="metric-icon">Total Cost</div>
+                        <div class="metric-label">All vehicles combined</div>
                         <div class="metric-value" id="total-cost">—</div>
                     </div>
                     <div class="metric-card blue">
-                        <div class="metric-icon">km</div>
-                        <div class="metric-label">Total Distance</div>
+                        <div class="metric-icon">Distance</div>
+                        <div class="metric-label">Total kilometres driven</div>
                         <div class="metric-value" id="total-distance">—</div>
                     </div>
                     <div class="metric-card orange">
-                        <div class="metric-icon">hr</div>
-                        <div class="metric-label">Total Time</div>
+                        <div class="metric-icon">Time</div>
+                        <div class="metric-label">Total driving hours</div>
                         <div class="metric-value" id="total-time">—</div>
                     </div>
                     <div class="metric-card purple">
-                        <div class="metric-icon">#</div>
-                        <div class="metric-label">Vehicles Used</div>
+                        <div class="metric-icon">Vehicles</div>
+                        <div class="metric-label">Routes generated</div>
                         <div class="metric-value" id="vehicles-used">—</div>
                     </div>
                 </div>
 
-                <div class="section-label">Analysis</div>
+                <div class="section-label">Cost and Efficiency Analysis</div>
                 <div class="chart-row">
                     <div class="chart-box">
-                        <h3>Cost Breakdown</h3>
+                        <h3>Cost Breakdown by Category</h3>
                         <div id="cost-chart"></div>
                     </div>
                     <div class="chart-box">
-                        <h3>Vehicle Utilisation</h3>
+                        <h3>Vehicle Capacity Utilisation</h3>
                         <div id="efficiency-chart"></div>
                     </div>
                 </div>
