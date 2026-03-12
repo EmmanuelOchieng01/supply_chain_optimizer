@@ -5,15 +5,13 @@ const colors = ['#C9A84C','#00BFA5','#E05252','#3b82f6','#8b5cf6'];
 
 function initMap() {
     map = L.map('map').setView([-1.2921, 36.8219], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap'
-    }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '© OpenStreetMap'}).addTo(map);
     addDepotMarker();
 }
 
 function addDepotMarker() {
-    const lat = parseFloat(document.getElementById('depot-lat').value);
-    const lng = parseFloat(document.getElementById('depot-lng').value);
+    const lat  = parseFloat(document.getElementById('depot-lat').value);
+    const lng  = parseFloat(document.getElementById('depot-lng').value);
     const name = document.getElementById('depot-name').value;
     const icon = L.divIcon({
         html: `<div style="background:#C9A84C;color:#0A0F17;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.4);">D</div>`,
@@ -36,9 +34,9 @@ function addDeliveryPoint() {
 }
 
 function addPointMarker(point) {
-    const idx = deliveryPoints.indexOf(point);
-    const color = colors[(idx) % colors.length];
-    const icon = L.divIcon({
+    const idx   = deliveryPoints.indexOf(point);
+    const color = colors[idx % colors.length];
+    const icon  = L.divIcon({
         html: `<div style="background:${color};color:#0A0F17;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.7rem;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.4);">${idx+1}</div>`,
         className: '', iconAnchor: [15,15]
     });
@@ -83,9 +81,9 @@ async function optimizeRoutes() {
     document.getElementById('loading').style.display = 'flex';
     document.getElementById('results').style.display = 'none';
 
-    const depot = {
-        lat: parseFloat(document.getElementById('depot-lat').value),
-        lng: parseFloat(document.getElementById('depot-lng').value),
+    const depot       = {
+        lat:  parseFloat(document.getElementById('depot-lat').value),
+        lng:  parseFloat(document.getElementById('depot-lng').value),
         name: document.getElementById('depot-name').value
     };
     const numVehicles = parseInt(document.getElementById('num-vehicles').value);
@@ -97,10 +95,8 @@ async function optimizeRoutes() {
         const response = await fetch('/api/optimize', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                depot, deliveries: deliveryPoints, vehicles,
-                strategy: document.getElementById('strategy').value
-            })
+            body: JSON.stringify({depot, deliveries: deliveryPoints, vehicles,
+                                  strategy: document.getElementById('strategy').value})
         });
         const result = await response.json();
         if (result.error) { showToast('Error: ' + result.error, 'error'); return; }
@@ -114,21 +110,37 @@ async function optimizeRoutes() {
     }
 }
 
+function formatKes(amount) {
+    if (amount >= 1000000) return 'KES ' + (amount/1000000).toFixed(2) + 'M';
+    if (amount >= 1000)    return 'KES ' + (amount/1000).toFixed(1) + 'K';
+    return 'KES ' + amount.toFixed(2);
+}
+
 function displayResults(result) {
     document.getElementById('results').style.display = 'block';
-    document.getElementById('total-cost').textContent     = '$' + result.costs.total.toFixed(2);
+
+    // Convert USD costs to KES (1 USD = 130 KES approx)
+    const rate = 130;
+    const costs = {
+        total:       result.costs.total       * rate,
+        fuel:        result.costs.fuel        * rate,
+        labor:       result.costs.labor       * rate,
+        maintenance: result.costs.maintenance * rate,
+        carbon:      result.costs.carbon      * rate,
+    };
+
+    document.getElementById('total-cost').textContent     = formatKes(costs.total);
     document.getElementById('total-distance').textContent = result.summary.total_distance.toFixed(1) + ' km';
     document.getElementById('total-time').textContent     = result.summary.total_time.toFixed(1) + ' hrs';
     document.getElementById('vehicles-used').textContent  = result.summary.vehicles_used;
 
     // Cost breakdown pie
     Plotly.newPlot('cost-chart', [{
-        values: [result.costs.fuel, result.costs.labor, result.costs.maintenance, result.costs.carbon],
+        values: [costs.fuel, costs.labor, costs.maintenance, costs.carbon],
         labels: ['Fuel','Labor','Maintenance','Carbon'],
-        type: 'pie',
-        hole: 0.45,
-        marker: { colors: ['#C9A84C','#00BFA5','#3b82f6','#E05252'] },
-        textfont: { color: '#C8D8E8', size: 11 }
+        type:   'pie', hole: 0.45,
+        marker: {colors: ['#C9A84C','#00BFA5','#3b82f6','#E05252']},
+        textfont: {color: '#C8D8E8', size: 11}
     }], {
         paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
         font: {color:'#C8D8E8', family:'DM Mono, monospace', size:11},
@@ -136,40 +148,47 @@ function displayResults(result) {
         legend:{orientation:'h', y:-0.15, font:{size:10}}
     }, {responsive:true, displayModeBar:false});
 
-    // Route utilisation bar
+    // Vehicle utilisation bar
     Plotly.newPlot('efficiency-chart', [{
-        x: result.routes.map((_,i) => `Route ${i+1}`),
-        y: result.routes.map(r => r.load_utilization),
+        x:    result.routes.map((_,i) => `Route ${i+1}`),
+        y:    result.routes.map(r => r.load_utilization),
         type: 'bar',
         marker: {
-            color: result.routes.map(r => r.load_utilization > 80 ? '#E05252' : r.load_utilization > 50 ? '#C9A84C' : '#00BFA5'),
+            color: result.routes.map(r =>
+                r.load_utilization > 80 ? '#E05252' :
+                r.load_utilization > 50 ? '#C9A84C' : '#00BFA5'),
             line: {width:0}
         },
-        text: result.routes.map(r => r.load_utilization.toFixed(1)+'%'),
-        textposition:'outside', textfont:{color:'#C8D8E8', size:11}
+        text:         result.routes.map(r => r.load_utilization.toFixed(1)+'%'),
+        textposition: 'outside',
+        textfont:     {color:'#C8D8E8', size:11}
     }], {
-        yaxis:{title:'Utilisation (%)', color:'#5A7090', range:[0,110], gridcolor:'#141E30'},
-        xaxis:{color:'#5A7090'},
+        yaxis: {title:'Utilisation (%)', color:'#5A7090', range:[0,115], gridcolor:'#141E30'},
+        xaxis: {color:'#5A7090'},
         paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
-        font:{color:'#C8D8E8', family:'DM Mono, monospace', size:11},
+        font:  {color:'#C8D8E8', family:'DM Mono, monospace', size:11},
         margin:{t:20,b:40,l:55,r:20}
     }, {responsive:true, displayModeBar:false});
 
     // Route cards
     document.getElementById('route-list').innerHTML = result.routes.map((route, i) => {
-        const stopNames = route.stops.map(idx => idx===0 ? 'Depot' : (deliveryPoints[idx-1]?.name || `Stop ${idx}`));
+        const stopNames = route.stops.map(idx =>
+            idx === 0 ? 'Depot' : (deliveryPoints[idx-1]?.name || `Stop ${idx}`)
+        );
+        const routeCost = formatKes((route.distance * 0.65 + route.time * 15) * rate);
         return `
         <div class="route-card" style="border-left:3px solid ${colors[i%colors.length]}">
             <div class="route-header">
                 <span class="route-label">Route ${i+1}</span>
-                <span class="route-badge">${route.stops.length-2} stops</span>
+                <span class="route-badge">${route.stops.length - 2} delivery stops</span>
+                <span class="route-badge" style="color:#C9A84C;">${routeCost}</span>
             </div>
             <div class="route-path">${stopNames.join(' → ')}</div>
             <div class="route-stats">
                 <span>${route.distance.toFixed(1)} km</span>
                 <span>${route.time.toFixed(1)} hrs</span>
-                <span>${route.load} kg</span>
-                <span>${route.load_utilization.toFixed(1)}% capacity</span>
+                <span>${route.load} kg loaded</span>
+                <span>${route.load_utilization.toFixed(1)}% capacity used</span>
             </div>
         </div>`;
     }).join('');
@@ -187,20 +206,22 @@ function drawRoutes(routes, depot) {
             return p ? [p.lat, p.lng] : [depot.lat, depot.lng];
         });
         const line = L.polyline(coords, {
-            color: colors[i % colors.length],
-            weight: 4, opacity: 0.85, dashArray: null
+            color: colors[i % colors.length], weight: 4, opacity: 0.85
         }).addTo(map);
         routeLayers.push(line);
     });
-    if (routeLayers.length) map.fitBounds(routeLayers[0].getBounds().extend(
-        routeLayers.map(l => l.getBounds())
-    ), {padding:[30,30]});
+    if (routeLayers.length) {
+        const allBounds = routeLayers.map(l => l.getBounds());
+        let combined = allBounds[0];
+        allBounds.forEach(b => { combined = combined.extend(b); });
+        map.fitBounds(combined, {padding:[30,30]});
+    }
 }
 
 function showToast(msg, type='info') {
-    const colors = {success:'#00BFA5', warn:'#C9A84C', error:'#E05252', info:'#3b82f6'};
+    const c = {success:'#00BFA5', warn:'#C9A84C', error:'#E05252', info:'#3b82f6'};
     const t = document.createElement('div');
-    t.style.cssText = `position:fixed;bottom:2rem;right:2rem;background:#0D1220;border:1px solid ${colors[type]};
+    t.style.cssText = `position:fixed;bottom:2rem;right:2rem;background:#0D1220;border:1px solid ${c[type]};
         color:#E2E8F0;padding:0.9rem 1.4rem;border-radius:8px;font-family:DM Mono,monospace;font-size:0.78rem;
         z-index:9999;box-shadow:0 8px 30px rgba(0,0,0,0.5);max-width:320px;`;
     t.textContent = msg;
