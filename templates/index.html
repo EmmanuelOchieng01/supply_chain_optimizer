@@ -10,101 +10,103 @@
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🚚 Micro-Supply Chain Optimizer</h1>
-            <p class="subtitle">AI-Powered Logistics with ML & Graph Optimization</p>
-        </header>
+    <header>
+        <div>
+            <h1>Supply<span>Chain</span> Optimizer</h1>
+            <div class="subtitle">AI-Powered Logistics · Clarke-Wright · 2-opt · Random Forest</div>
+        </div>
+        <div class="header-badge">Kenya Logistics v1.0</div>
+    </header>
 
-        <div class="dashboard">
-            <div class="control-panel">
-                <h2>Configuration</h2>
+    <div class="dashboard">
+        <div class="control-panel">
+            <h2>Configuration</h2>
 
-                <div class="section">
-                    <h3>📍 Depot Location</h3>
-                    <input type="text" id="depot-name" placeholder="Depot Name" value="Main Depot - Nairobi">
-                    <div class="coord-group">
-                        <input type="number" id="depot-lat" placeholder="Latitude" value="-1.2921" step="0.0001">
-                        <input type="number" id="depot-lng" placeholder="Longitude" value="36.8219" step="0.0001">
-                    </div>
+            <div class="section">
+                <h3>Depot Location</h3>
+                <input type="text" id="depot-name" placeholder="Depot Name" value="Main Depot — Nairobi">
+                <div class="coord-group">
+                    <input type="number" id="depot-lat" placeholder="Latitude"  value="-1.2921" step="0.0001">
+                    <input type="number" id="depot-lng" placeholder="Longitude" value="36.8219" step="0.0001">
                 </div>
-
-                <div class="section">
-                    <h3>📦 Delivery Points</h3>
-                    <div id="delivery-list"></div>
-                    <button class="btn-secondary" onclick="addDeliveryPoint()">+ Add Location</button>
-                </div>
-
-                <div class="section">
-                    <h3>🚐 Fleet Configuration</h3>
-                    <label>Number of Vehicles</label>
-                    <input type="number" id="num-vehicles" value="3" min="1" max="10">
-                    <label>Vehicle Capacity (kg)</label>
-                    <input type="number" id="vehicle-capacity" value="500" step="50">
-                    <label>Cost per km ($)</label>
-                    <input type="number" id="cost-per-km" value="2.5" step="0.1">
-                </div>
-
-                <div class="section">
-                    <h3>⚙️ Optimization Strategy</h3>
-                    <select id="strategy">
-                        <option value="cost_optimized">💰 Cost Optimized</option>
-                        <option value="time_optimized">⚡ Time Optimized</option>
-                        <option value="balanced">⚖️ Balanced</option>
-                        <option value="green">🌱 Green (Low Carbon)</option>
-                    </select>
-                </div>
-
-                <button class="btn-primary" onclick="optimizeRoutes()">🚀 Optimize Routes</button>
-                <button class="btn-secondary" onclick="generateSampleData()">📊 Load Sample Data</button>
-
-                <div id="loading" class="loading" style="display: none;">Optimizing routes...</div>
             </div>
 
-            <div class="main-panel">
-                <div class="map-container">
-                    <div id="map"></div>
+            <div class="section">
+                <h3>Delivery Points</h3>
+                <div id="delivery-list"></div>
+                <button class="btn-secondary" onclick="addDeliveryPoint()">+ Add Random Location</button>
+            </div>
+
+            <div class="section">
+                <h3>Fleet Configuration</h3>
+                <label>Number of Vehicles</label>
+                <input type="number" id="num-vehicles" value="3" min="1" max="10">
+                <label>Vehicle Capacity (kg)</label>
+                <input type="number" id="vehicle-capacity" value="500" step="50">
+                <label>Cost per km ($)</label>
+                <input type="number" id="cost-per-km" value="2.5" step="0.1">
+            </div>
+
+            <div class="section">
+                <h3>Optimisation Strategy</h3>
+                <select id="strategy">
+                    <option value="cost_optimized">Cost Optimised</option>
+                    <option value="time_optimized">Time Optimised</option>
+                    <option value="balanced">Balanced</option>
+                    <option value="green">Green — Low Carbon</option>
+                </select>
+            </div>
+
+            <button class="btn-primary" onclick="optimizeRoutes()">Run Optimisation</button>
+            <button class="btn-secondary" onclick="generateSampleData()">Load Sample Data</button>
+            <div id="loading" class="loading">Optimising routes...</div>
+        </div>
+
+        <div class="main-panel">
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+
+            <div id="results" style="display:none;">
+                <div class="section-label">Summary Metrics</div>
+                <div class="metrics-grid">
+                    <div class="metric-card green">
+                        <div class="metric-icon">$</div>
+                        <div class="metric-label">Total Cost</div>
+                        <div class="metric-value" id="total-cost">—</div>
+                    </div>
+                    <div class="metric-card blue">
+                        <div class="metric-icon">km</div>
+                        <div class="metric-label">Total Distance</div>
+                        <div class="metric-value" id="total-distance">—</div>
+                    </div>
+                    <div class="metric-card orange">
+                        <div class="metric-icon">hr</div>
+                        <div class="metric-label">Total Time</div>
+                        <div class="metric-value" id="total-time">—</div>
+                    </div>
+                    <div class="metric-card purple">
+                        <div class="metric-icon">#</div>
+                        <div class="metric-label">Vehicles Used</div>
+                        <div class="metric-value" id="vehicles-used">—</div>
+                    </div>
                 </div>
 
-                <div id="results" style="display: none;">
-                    <div class="metrics-grid">
-                        <div class="metric-card green">
-                            <div class="metric-icon">💰</div>
-                            <div class="metric-label">Total Cost</div>
-                            <div class="metric-value" id="total-cost">$0</div>
-                        </div>
-                        <div class="metric-card blue">
-                            <div class="metric-icon">🛣️</div>
-                            <div class="metric-label">Distance</div>
-                            <div class="metric-value" id="total-distance">0 km</div>
-                        </div>
-                        <div class="metric-card orange">
-                            <div class="metric-icon">⏱️</div>
-                            <div class="metric-label">Time</div>
-                            <div class="metric-value" id="total-time">0 hrs</div>
-                        </div>
-                        <div class="metric-card purple">
-                            <div class="metric-icon">🚚</div>
-                            <div class="metric-label">Vehicles</div>
-                            <div class="metric-value" id="vehicles-used">0</div>
-                        </div>
+                <div class="section-label">Analysis</div>
+                <div class="chart-row">
+                    <div class="chart-box">
+                        <h3>Cost Breakdown</h3>
+                        <div id="cost-chart"></div>
                     </div>
+                    <div class="chart-box">
+                        <h3>Vehicle Utilisation</h3>
+                        <div id="efficiency-chart"></div>
+                    </div>
+                </div>
 
-                    <div class="chart-row">
-                        <div class="chart-box">
-                            <h3>Cost Breakdown</h3>
-                            <div id="cost-chart"></div>
-                        </div>
-                        <div class="chart-box">
-                            <h3>Route Efficiency</h3>
-                            <div id="efficiency-chart"></div>
-                        </div>
-                    </div>
-
-                    <div class="route-details">
-                        <h3>Route Details</h3>
-                        <div id="route-list"></div>
-                    </div>
+                <div class="section-label">Route Details</div>
+                <div class="route-details">
+                    <div id="route-list"></div>
                 </div>
             </div>
         </div>
