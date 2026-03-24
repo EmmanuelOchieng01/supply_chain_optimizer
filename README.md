@@ -38,6 +38,13 @@ You provide a depot location, a list of delivery points, and a fleet size. The s
 <br>
 
 
+<img src="https://github.com/user-attachments/assets/<img width="1600" height="900" alt="Screenshot From 2026-03-24 12-39-14" src="https://github.com/user-attachments/assets/ca6ddd8d-03e1-49c4-b8f5-67e0fa067b2b" />" width="100%" alt="Cost breakdown, vehicle utilisation charts and route details">
+
+
+
+
+
+
 
 
 ## Launch Procedure
