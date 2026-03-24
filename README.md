@@ -33,6 +33,13 @@ You provide a depot location, a list of delivery points, and a fleet size. The s
 
 ---
 
+## Sample Screenshots 
+<img src="https://github.com/user-attachments/assets/<img width="1325" height="477" alt="Screenshot From 2026-03-24 12-38-35" src="https://github.com/user-attachments/assets/70d074a8-3d91-45e5-b826-6ce681e928ff" />" width="100%" alt="Live route map showing optimised delivery paths across Nairobi">
+<br>
+
+
+
+
 ## Launch Procedure
 
 Requirements: Python 3.8+
